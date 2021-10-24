@@ -8,10 +8,7 @@
 
 namespace fileio
 {
-    void Hello()
-    {
-        std::cout<<"Hello, World!\n";
-    }
+    
 }
 
 #endif
@@ -19,5 +16,18 @@ namespace fileio
 
 namespace fileio
 {
-    void Hello();
+    enum class Modes
+    {
+        write = 2,
+        read = 4,
+        binary = 8,
+        
+    };
+
+    class File
+    {
+    public:
+        File(const char* path); 
+    
+    };
 }
