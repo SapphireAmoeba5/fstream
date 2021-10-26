@@ -33,7 +33,9 @@ namespace fileio
         
         bool Read(char* buffer, size_t count);
         bool Read(unsigned char* buffer, size_t count);
-        
+
+        bool Close();
+
         const size_t FileSize() const;
     public: // Getters
         inline const bool IsOpen() const {return m_Open;}
@@ -76,6 +78,7 @@ namespace fileio
     }
     
     File::File()
+        :m_FileHandle(nullptr), m_Open(false), m_WriteMode(false), m_ReadMode(false)
     {
 
     }
@@ -143,6 +146,20 @@ namespace fileio
         fseek(m_FileHandle, 0, cur);
 
         return size;
+    }
+
+    bool File::Close()
+    {
+        if(m_Open)
+        {
+            fclose(m_FileHandle);
+            m_Open = false;
+            m_ReadMode = false;
+            m_WriteMode = false;  
+            
+            return true;
+        }
+        return false;
     }
 
     // Private methods
