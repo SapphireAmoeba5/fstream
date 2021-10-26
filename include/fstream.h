@@ -47,6 +47,15 @@ namespace fileio
 #include <iostream>
 #include <cstring>
 
+static void fopen_imp(const char* path, const char* modes, FILE*& file)
+{
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    fopen_s(&file, path, modes);
+#else
+    file = fopen(path, modes);
+#endif
+}
+
 namespace fileio
 {
     File::File(const char* path, int modifier)
@@ -101,16 +110,17 @@ namespace fileio
     // Private methods
     void File::Impl_OpenFile(const char* path, io::modifiers modifier)
     {
-        switch(modifier)
+        switch((int)modifier)
         {
             case io::write:
-                m_FileHandle = fopen(path, "w");
+                //m_FileHandle = fopen(path, "w");
+                fopen_imp(path, "w", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
             case io::read | io::noerase:
             case io::read:
-                m_FileHandle = fopen(path, "r");
+                fopen_imp(path, "r", m_FileHandle);
                 break;
             
             case io::write | io::app:
@@ -118,45 +128,45 @@ namespace fileio
             case io::app | io::noerase:
             case io::write | io::noerase:
             case io::app:
-                m_FileHandle = fopen(path, "a");
+                fopen_imp(path, "a", m_FileHandle);
                 m_WriteMode = true;
                 break;
 
             case io::binary | io::noerase:
             case io::binary:
             case io::read | io::binary:
-                m_FileHandle = fopen(path, "rb");
+                fopen_imp(path, "rb", m_FileHandle);
                 break;
             
             case io::write | io::binary:
-                m_FileHandle = fopen(path, "wb");
+                fopen_imp(path, "wb", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
             case io::app | io::binary:
-                m_FileHandle = fopen(path, "ab");
+                fopen_imp(path, "ab", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
             case io::write | io::read:
-                m_FileHandle = fopen(path, "w+");
+                fopen_imp(path, "w+", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
             case io::write | io::read | io::noerase:
             case io::app | io::read:
-                m_FileHandle = fopen(path, "a+");
+                fopen_imp(path, "a+", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
             case io::write | io::read | io::binary:
-                m_FileHandle = fopen(path, "w+b");
+                fopen_imp(path, "w+b", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
             case io::write | io::read | io::noerase | io::binary:
             case io::app | io::read | io::binary:
-                m_FileHandle = fopen(path, "a+b");
+                fopen_imp(path, "a+b", m_FileHandle);
                 m_WriteMode = true;
                 break;
             
