@@ -35,6 +35,7 @@ namespace fileio
         bool Read(unsigned char* buffer, size_t count);
 
         bool Close();
+        bool Open(const char* path, int modifier);
 
         const size_t FileSize() const;
     public: // Getters
@@ -57,6 +58,7 @@ namespace fileio
 
 static void fopen_imp(const char* path, const char* modes, FILE*& file)
 {
+    // For code to compile on MSVC
 #if defined(_MSC_VER) && _MSC_VER >= 1400
     fopen_s(&file, path, modes);
 #else
@@ -139,6 +141,7 @@ namespace fileio
 
     const size_t File::FileSize() const
     {
+        // Current cursor position
         size_t cur = ftell(m_FileHandle);
 
         fseek(m_FileHandle, 0, SEEK_END);
@@ -162,6 +165,16 @@ namespace fileio
         return false;
     }
 
+    bool File::Open(const char* path, int modifier)
+    {
+        if(m_Open)
+        {
+            fclose(m_FileHandle);
+        }
+        Impl_OpenFile(path, static_cast<io::modifiers>(modifier));
+        return m_Open = Impl_ValidHandle();
+    }
+    
     // Private methods
     void File::Impl_OpenFile(const char* path, io::modifiers modifier)
     {
@@ -230,7 +243,10 @@ namespace fileio
                 m_ReadMode = true;
                 m_WriteMode = true;
                 break;
-            
+            default:
+                fopen_imp(path, "r", m_FileHandle);
+                m_ReadMode = true;
+                break;
         }
     }
 
